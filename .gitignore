@@ -1,0 +1,6 @@
+.figure-env/
+__pycache__/
+*.blend[0-9]*
+.figure-build.lock
+/figure-output/*
+!/figure-output/mos2-revision/

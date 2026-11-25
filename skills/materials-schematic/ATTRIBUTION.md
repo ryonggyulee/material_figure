@@ -1,0 +1,7 @@
+# Attribution
+
+The figure-design workflow and selected functions in `scripts/upstream_scene.py` derive from **schematic-figure** by Jinchen Zhao and Logan Wright, LGW Lab, Yale University, at commit `09d8b6e98d04b91de6e8b6632b3356b9fc237417`. The three-light studio rig adapts the upstream lighting arrangement. The original MIT copyright and permission notice accompanies this skill. Cite the authors' project article when using the upstream work. [Repository](https://github.com/lgwrightlab/schematic-figure) · [Automating schematic figure making](https://lgwrightlab.github.io/schematic-figure/) · [MIT license](LICENSE)
+
+Element data are resolved by the installed Atomic Simulation Environment. Display colors use its Jmol table and sphere radii scale its covalent radii. A neutral fallback color is used for elements beyond the palette. ASE is distributed under LGPL-2.1-or-later. Its geometry, connectivity, and color conventions remain attributable to ASE and the underlying data sources. The example uses ASE's trigonal-prismatic MX₂ basis. [ASE](https://ase-lib.org/) · [ASE element data](https://docs.ase-lib.org/ase/data.html) · [MX₂ constructor](https://docs.ase-lib.org/_modules/ase/build/surface.html)
+
+Source Sans 3 Regular, version 3.046, © 2010–2021 Adobe, is included under the SIL Open Font License 1.1. The example blends pack the font. [Font license](assets/SourceSans-LICENSE.txt)
