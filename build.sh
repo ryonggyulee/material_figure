@@ -1,10 +1,15 @@
 #!/usr/bin/env bash
-# Prepare the ASE tools and check the existing Blender installation.
+# Prepare the figure tools or the standalone atomic modeling environment.
 set -euo pipefail
 root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
 skill="$root/skills/materials-schematic"
-lock="$skill/environment/linux-64.lock"
 prefix="$root/.figure-env"
+case "$#:${1-}" in
+    0:) ;;
+    1:--modeling) skill="$root/skills/atomistic-model"; prefix="$root/.model-env" ;;
+    *) echo "Usage: ./build.sh [--modeling]" >&2; exit 2 ;;
+esac
+lock="$skill/environment/linux-64.lock"
 unset PYTHONHOME PYTHONPATH
 
 if [[ $(uname -sm) != "Linux x86_64" ]]; then
@@ -77,6 +82,12 @@ else
     matches_lock || { echo "ASE environment verification failed." >&2; exit 1; }
     rm -rf -- "$scratch"
     trap - EXIT
+fi
+
+if [[ ${1-} == --modeling ]]; then
+    "$prefix/bin/python" -I -c 'import ase; from pymatgen.core import Structure; from pymatgen.io.ase import AseAtomsAdaptor'
+    echo "Ready. Run atomic modeling scripts with $prefix/bin/python"
+    exit 0
 fi
 
 (

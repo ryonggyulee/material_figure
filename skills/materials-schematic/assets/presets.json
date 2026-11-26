@@ -1,5 +1,5 @@
 {
-  "output": {"transparent": true},
+  "output": {"transparent": true, "width_px": 4500},
   "elements": {"color": "ASE Jmol", "radius": "ASE covalent radius", "display_fraction": 0.63, "fallback_srgb": [0.68, 0.56, 0.73]},
   "bonds": {"covalent_multiplier": 1.08, "radius_angstrom": 0.17, "presets": {"mos2": {"Mo-S": 2.65}}},
   "materials": {
@@ -9,5 +9,12 @@
     "silicon": {"color": "#455F79", "metallic": 0.32, "roughness": 0.38}
   },
   "studio": {"samples": 32, "world_strength": 0.42, "atom_roughness": 0.34},
-  "cartoon": {"samples": 12, "light_direction": [-0.40, -0.50, 0.77], "thresholds": [0, 0.22, 0.65, 0.92], "tones": [0.50, 0.74, 0.94, 1.08]}
+  "cartoon": {
+    "samples": 12, "light_direction": [-0.40, -0.50, 0.77], "atom_light_wrap": 0.25,
+    "thresholds": [0, 0.22, 0.65, 0.92], "tones": [0.50, 0.74, 0.94, 1.08],
+    "atom_bands": {
+      "strength": 0.60, "tone_count": 5, "edge_half_width": 0.055,
+      "transitions": [[0.22, 0.22], [0.435, 0.435], [0.65, 0.65], [0.92, 1.0]]
+    }
+  }
 }

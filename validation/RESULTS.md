@@ -11,9 +11,9 @@ The shipped scenes and PNGs were produced by the cluster's existing Linux Blende
 
 ## Same-device reproduction and local revision
 
-Using Blender 3.1.2 on the cluster, we converted the original `channel.extxyz` with the Mo–S cutoff, ran the composition script and rendered the studio and cartoon views at 1800 × 1240 with `--no-transparent`. Every RGB pixel matched the corresponding shipped PNG in both styles. We then applied the refinement to the saved device. Both refined styles export RGBA with alpha values spanning 0–255. [Original studio](../examples/mos2/studio.png) · [Side-by-side comparison on white](../figure-output/mos2-revision/compare.png) · [Refined cartoon](../figure-output/mos2-revision/cartoon.png)
+Using Blender 3.1.2 on the cluster, we converted the original `channel.extxyz` with the Mo–S cutoff, ran the composition script and rendered the studio and cartoon views at 1800 × 1240 with `--no-transparent`. Every RGB pixel matched the corresponding shipped PNG in both styles. We then applied the refinement to the saved device. Both refined styles export RGBA with alpha values spanning 0–255. [Original studio](../examples/mos2/studio.png)
 
-The refined renders identify Mo and S on visible sites and show the lattice under the drain. The drain label explicitly identifies the transparency as an illustration. A shorter leader crosses less of the back-gate face. The studio uses 96 samples for the transparent interfaces. The scientific checks above pass on both reopened blends. The camera transform and orthographic scale, light transforms, colors and energies match the original. The scene grows from 19 to 22 objects through the annotation changes. Both versions still use one atomic mesh. [Figure-specific patch](../examples/mos2/refine.py) · [Editable studio](../figure-output/mos2-revision/studio.blend) · [Editable cartoon](../figure-output/mos2-revision/cartoon.blend)
+The refined renders identify Mo and S on visible sites and show the lattice under the drain. The drain label explicitly identifies the transparency as an illustration. A shorter leader crosses less of the back-gate face. The studio uses 96 samples for the transparent interfaces. The scientific checks above pass on both reopened blends. The camera transform and orthographic scale, light transforms, colors and energies match the original. The scene grows from 19 to 22 objects through the annotation changes. Both versions still use one atomic mesh. [Figure-specific patch](refine_mos2.py)
 
 | CPU, automatic threads, full size | Build or patch and save | Render including PNG | Peak RSS rendering the saved blend¹ |
 | --- | ---: | ---: | ---: |
@@ -55,21 +55,34 @@ These are GUI measurements in a 991 × 641 3D area. The benchmark rotates the vi
 
 ## Reproduce the checks
 
-Use the README recipe, then run the geometry and revision checks against the delivered files and the new revision.
+Run the reproduction and local revision commands in the [README](../README.md) first. They create the blends used below in the ignored directory `test/reproduction/`. The base scene and successive-edit checks also run directly against the shipped example with `blender -b --python-exit-code 1 -P validation/check_scene.py` and `.figure-env/bin/python validation/check_edits.py`.
 
 ```bash
-blender -b --python-exit-code 1 -P validation/check_scene.py -- figure-output/revised.blend
-blender -b --python-exit-code 1 -P validation/check_scene.py -- --refined-dir figure-output/mos2-revision
+blender -b --python-exit-code 1 -P validation/check_scene.py -- test/reproduction/revised.blend --refined-dir test/reproduction/refined
 .figure-env/bin/python validation/check_edits.py
-python "$SKILL/scripts/prepare.py" examples/mos2/channel.extxyz figure-output/large.npz --repeat 12 12 1 --bonds mos2
-python "$SKILL/scripts/host.py" --geometry figure-output/large.npz --output figure-output/large.blend
+mkdir -p test/benchmark
+"$PY" "$SKILL/scripts/prepare.py" examples/mos2/channel.extxyz test/benchmark/large.npz --repeat 12 12 1 --bonds mos2
+"$PY" "$SKILL/scripts/host.py" --geometry test/benchmark/large.npz --output test/benchmark/large.blend
 ```
 
 On a graphical display, run the timed orbit. Supply a saved scene as the input. The benchmark exits its Blender window when finished.
 
 ```bash
 blender --factory-startup -p 0 0 1200 740 examples/mos2/studio.blend -P validation/viewport.py
-blender --factory-startup -p 0 0 1200 740 figure-output/large.blend -P validation/viewport.py -- --wire
+blender --factory-startup -p 0 0 1200 740 test/benchmark/large.blend -P validation/viewport.py -- --wire
 ```
 
 The Codex skill frontmatter validator passed. The Miniforge prefix used ASE 3.26.0 and Python 3.12 with a 99-package explicit conda-forge lock. The supporting-tools image was built with rootless Podman and run with networking disabled. Its transfer file matched the native NPZ byte-for-byte (SHA-256 `6211ed55129500b7bc532764272541f7590b6b874852358bb6fa8075c3c9290e`). This host used isolated overlay storage with single-UID extraction for Podman.
+
+## Atomic structure modeling
+
+Reproduce with `./build.sh --modeling` and `.model-env/bin/python validation/check_models.py --live --blender`. Omitting both flags runs the offline geometry, conversion and failure checks. The modeling environment was installed from the 120-package conda-forge Linux lock and reused on a second build.
+
+| Path exercised | Observed result |
+| --- | --- |
+| ASE finite 1H-MoS₂ channel | The shipped recipe reproduced all 216 ordered sites. Removing top-layer S at zero-based index 97 left Mo₇₂S₁₄₃ and 393 displayed Mo–S bonds. A deliberately shifted spectator atom failed validation and the previous file stayed byte-identical. |
+| Native pymatgen | Space group Fd-3m and a 5.431 Å conventional Si cell gave 16 sites in a 2 × 1 × 1 supercell. Export and CIF import preserved the native ordered coordinates. ASE and pymatgen inputs with 50/50 mixed occupancy were rejected. Multi-frame ASE conversion required explicit frame selection. |
+| Live databases | C2DB `1MoS2-1` returned three sites with aligned upper and lower S and in-plane periodicity. Its 2 × 2 derivative retained the parent ID and operation. MP `mp-149` returned two fully periodic Si sites through public OPTIMADE. Both outputs carried their source URLs and response hashes. |
+| Blender handoff | Replaced the channel in the shipped studio and cartoon blends and rendered both at 900 × 620. Reopening each file reproduced the same vacancy coordinates, ordered species, 393 edges and model history. The camera selection, object names and transforms matched the respective original scenes. |
+
+The external import reads OPTIMADE species definitions to account for site labels and partial occupancies. The export escapes JSON in the ASE header so that Korean text, quoted names and Å survive reloading. The MoS₂ vacancy is an unrelaxed deletion. The full-device previews preserve the existing composition, where a single missing S is subtle. The ordered-site comparison verifies its location. [Model checks](check_models.py) · [C2DB entry](https://c2db.fysik.dtu.dk/material/1MoS2-1) · [MP entry](https://materialsproject.org/materials/mp-149)

@@ -4,11 +4,11 @@ import bpy
 from appearance import swatch
 from edits import target
 from labels import callout
-from scene_tools import setup, slab
+from scene_tools import output_pixels, setup, slab
 
 structure.name = "Channel · 1H molybdenum disulfide"
 structure["figure_id"] = "channel"
-camera = setup((0, 0, -1.9), 62, direction=(0.28, -1, 0.72), pixels=(1800, 1240))
+camera = setup((0, 0, -1.9), 62, direction=(0.28, -1, 0.72), pixels=output_pixels((45, 31)))
 # Nominal cartoon device dimensions, in the same coordinate frame as the atoms.
 # The adjacent surfaces meet the atom display envelopes at the outer S planes.
 oxide_top = -2.25

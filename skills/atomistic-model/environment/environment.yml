@@ -1,0 +1,8 @@
+name: atomistic-model
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  - python=3.12
+  - ase=3.26.0
+  - pymatgen=2026.10.24

@@ -4,15 +4,8 @@ import json
 import bpy
 import numpy as np
 
-from appearance import ASSETS, material, swatch
+from appearance import ASSETS, material, socket, swatch
 from scene_tools import category_collection
-
-
-def socket(group, name, direction, kind):
-    if bpy.app.version >= (4, 0, 0):
-        return group.interface.new_socket(name=name, in_out=direction, socket_type=kind)
-    sockets = group.inputs if direction == "INPUT" else group.outputs
-    return sockets.new(kind, name)
 
 
 def atomic_modifier(obj):
@@ -22,6 +15,12 @@ def atomic_modifier(obj):
     if "structure_metadata" not in obj or len(matches) != 1:
         raise ValueError(f"{obj.name}: expected one skill-generated atomic display")
     return matches[0]
+
+
+def element_material(asset):
+    """Every ASE species uses the project's atom shader and its own element color."""
+    return material("Element · " + asset["symbol"], asset["srgb"],
+                    roughness=ASSETS["studio"]["atom_roughness"], atom=True)
 
 
 def atomic_mesh(path, name="Atomic structure", *, replace=None):
@@ -104,9 +103,7 @@ def atomic_mesh(path, name="Atomic structure", *, replace=None):
         sphere = node("GeometryNodeMeshIcoSphere", -680, y)
         sphere.inputs["Radius"].default_value = asset["radius"]
         wire(detail.outputs[0], sphere.inputs["Subdivisions"])
-        atom = material("Element · " + asset["symbol"], asset["srgb"],
-                        roughness=ASSETS["studio"]["atom_roughness"])
-        sphere_geo = prototype(sphere, atom, -480, y)
+        sphere_geo = prototype(sphere, element_material(asset), -480, y)
         select = node("ShaderNodeMath", -100, y, asset["symbol"])
         select.operation = "COMPARE"
         select.inputs[1].default_value = int(number)

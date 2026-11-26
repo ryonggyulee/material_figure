@@ -17,7 +17,7 @@ python "$SKILL/scripts/host.py" --geometry atoms.npz --output crystal.blend --re
 python "$SKILL/scripts/host.py" --input crystal.blend --style cartoon --output cartoon.blend --render cartoon.png
 ```
 
-Add `--preview` to render at half size and a quarter of the samples. The saved blend retains the full settings. Use `--open` in a graphical session to open the result interactively.
+New figures use the width in `output.width_px` (4500 px). The default 5:3 canvas is 4500 × 2700. To frame a different aspect ratio at the same print resolution, import `output_pixels` from `scene_tools` and pass e.g. `pixels=output_pixels((16, 9))` to `setup`. Pass `pixels=(width, height)` for an exact size. An existing blend keeps its saved resolution on edits and style switches. Add `--preview` to render at half size and a quarter of the samples. The saved blend retains the full settings. Use `--open` in a graphical session to open the result interactively.
 
 New scenes and PNG exports use a transparent world background by default. Set `--no-transparent` for the scene's visible world background (white in the supplied studio setup). For existing blends the automatic PNG export preference applies only to the PNG. An explicit background flag also saves that setting in the output blend. A scene-only revision preserves the input blend's settings unless a background option is supplied. The project default is `output.transparent` in [presets.json](../assets/presets.json).
 
@@ -40,7 +40,9 @@ callout(camera, "Gate oxide", (-6, -9, -3.5), (-12, -12), above=False)
 
 The Outliner has four figure collections. The atomic importer fills `atomistic`, `slab` fills `continuum`, and `callout` fills `label`. For custom geometry, use `from scene_tools import categorize`, then e.g. `categorize(cloud, "effect")` on an electron-cloud object. This only changes collection membership. In an older blend, categorize existing objects directly when organizing it; older callouts may appear under `Callouts`.
 
-Use `material(name, srgb, metallic=..., roughness=...)` from `appearance` for additional materials. Managed materials contain a studio shader and a stepped emission shader. Native Blender materials added by hand are left under the artist's control. `callout` takes a world-space anchor and a camera-plane text position in scene units. Its leader is projected for the chosen view. Reposition leaders after moving anchors or changing camera direction. The font is packed in the blend.
+Use `material(name, srgb, metallic=..., roughness=...)` from `appearance` for additional materials. All new atomic species share the editable `Atom cartoon shading` node group. In [presets.json](../assets/presets.json), `cartoon.atom_bands.strength` sets the mix with smooth light. Each pair in `transitions` specifies a light threshold and the tone above it. Four transitions produce five tones. `edge_half_width` softens either side of each boundary. Each species maps the result through its own color ramp. Existing materials retain their saved shaders during revisions. Bonds and device bodies use their own stepped shading; studio uses its own shader.
+
+`callout` takes a world-space anchor and a camera-plane text position in scene units. Its leader is projected for the chosen view. Reposition leaders after moving anchors or changing camera direction. The font is packed in the blend.
 
 ## Revising a saved scene
 

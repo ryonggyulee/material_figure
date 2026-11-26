@@ -89,6 +89,23 @@ assert target("Source · Au").active_material.node_tree.nodes.get("Figure opacit
 assert (Vector(element(channel, "S").diffuse_color) - Vector(hex_rgb("#9653ce"))).length < 1e-5
 assert len(bpy.context.scene.objects) == 21
 ''')
+    # Importing a new mesh into an older blend must use the current atom preset,
+    # even for species that already have a legacy material with the same name.
+    step("defaults", '''
+shared = None
+for symbol in ("Mo", "S", "Se"):
+    mat = element(structure, symbol)
+    ramp = mat.node_tree.nodes["Cartoon"].inputs["Color"].links[0].from_node
+    group = ramp.inputs["Fac"].links[0].from_node.node_tree
+    assert shared is None or group == shared
+    shared = group
+    assert abs(group.nodes["Band strength"].inputs[0].default_value - 0.60) < 1e-6
+    steps, = [n.color_ramp for n in group.nodes if n.type == "VALTORGB"]
+    assert len({stop.color[0] for stop in steps.elements}) == 5
+assert element(structure, "Se") == element(channel, "Se")
+assert element(structure, "Mo") != element("Untouched sheet", "Mo")
+assert element("Untouched sheet", "Mo").node_tree.nodes["Cartoon"].inputs[0].links[0].from_node.color_ramp.interpolation == "CONSTANT"
+''', "--geometry", str(replacement))
     bad = directory / "failed.blend"
     patch = directory / "missing.py"
     patch.write_text('from edits import surface\nsurface("Absent pad", opacity=0.2)\n')
@@ -112,6 +129,8 @@ def element(key, symbol):
 '''
 
 if __name__ == "__main__":
-    with TemporaryDirectory() as tmp:
+    work = ROOT / "test"
+    work.mkdir(exist_ok=True)
+    with TemporaryDirectory(prefix="edit-", dir=work) as tmp:
         run(Path(tmp))
-    print("PASS successive edits, linked copies, species replacement, export alpha and missing target")
+    print("PASS successive edits, linked copies, species replacement, export alpha, missing target and atom defaults")

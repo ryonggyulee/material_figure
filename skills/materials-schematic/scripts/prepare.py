@@ -45,6 +45,8 @@ def pack(atoms, destination, rule="natural", source="ASE Atoms"):
                                     radius=float(covalent_radii[number]) * style["display_fraction"])
     metadata = dict(source=source, units="angstrom", ase=ase.__version__, rule=rule, palette=palette,
                     cutoffs=ASSETS["bonds"], boundary="displayed pairs only")
+    if "model_history" in atoms.info:
+        metadata["model_history"] = atoms.info["model_history"]
     with Path(destination).open("wb") as stream:
         np.savez_compressed(stream, positions=positions, numbers=atoms.numbers.astype(np.int32),
                             edges=edges, cell=atoms.cell.array, pbc=atoms.pbc, metadata=json.dumps(metadata))

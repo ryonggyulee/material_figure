@@ -36,11 +36,17 @@ def categorize(obj, name):
     return obj
 
 
-def setup(target, width, direction=(0.48, -1, 0.70), pixels=(1800, 1080)):
+def output_pixels(aspect=(5, 3)):
+    """Pixel dimensions at the preset width for a (width, height) aspect ratio."""
+    width = ASSETS["output"]["width_px"]
+    return width, round(width * aspect[1] / aspect[0])
+
+
+def setup(target, width, direction=(0.48, -1, 0.70), pixels=None):
     scene = bpy.context.scene
     scene.render.engine = "CYCLES"
     use_device(scene)
-    scene.render.resolution_x, scene.render.resolution_y = pixels
+    scene.render.resolution_x, scene.render.resolution_y = output_pixels() if pixels is None else pixels
     scene.render.resolution_percentage = 100
     scene.view_settings.view_transform = "Standard"
     scene.world = bpy.data.worlds.new("Paper and studio fill")

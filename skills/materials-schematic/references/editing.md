@@ -3,7 +3,7 @@
 Use the same support environment and Blender launcher as the creation skill. For a source checkout set `SKILL="$PWD/skills/materials-schematic"` and `PY="$PWD/.figure-env/bin/python"`. For a user installation set SKILL to the installed materials-schematic directory and use the environment's Python. Install the two skills as siblings.
 
 ```bash
-"$PY" "$SKILL/scripts/host.py" --input v1.blend --script patch.py --output v2.blend --render v2.png
+"$PY" "$SKILL/scripts/host.py" --input device.blend --script patch.py --output device.blend --render device.png
 ```
 
 Patch examples below are independent. Names match the shipped MoS₂ scenes. Newly composed devices also support stable figure_id values such as `drain` and `channel`. Object keys are exact and must resolve uniquely in the active scene. In Blender's console, `[(o.name, o.get("figure_id")) for o in bpy.context.scene.objects]` lists the choices.
@@ -33,4 +33,4 @@ Prepare the new ASE geometry with its own bond model. Select the target by its f
 
 This replaces the selected object's scientific mesh and cell metadata. Its transform, collection, other modifiers and display branches survive; newly encountered species get new branches. Old species branches may remain dormant for reuse. Mesh-local custom attributes, shapekeys and assignments indexed by site belong to the outgoing geometry. For a site displacement that retains topology, edit the vertex and update the existing mesh instead of replacing it. Review scientific labels and leaders after a real change of species, extent or interface geometry.
 
-Each invocation starts from the specified input. Use v2 as the input for the next edit to retain v2's changes. A failed patch stops before saving. A patch is ordinary trusted Blender Python, so its own explicit global operations can affect the full scene. For a local edit leave off the global style switch. Default transparent PNG export happens after saving the revised blend; supply an explicit background flag to edit the saved film setting too.
+Each invocation starts from the specified input. When saving a named variant, use that file as the input for its next edit. A failed patch stops before saving. A patch is ordinary trusted Blender Python, so its own explicit global operations can affect the full scene. For a local edit leave off the global style switch. Default transparent PNG export happens after saving the revised blend; supply an explicit background flag to edit the saved film setting too.

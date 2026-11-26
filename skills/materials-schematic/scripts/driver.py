@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from appearance import ASSETS, set_style
 from atoms import atomic_mesh
 from edits import target
-from scene_tools import CATEGORIES, category_collection, setup
+from scene_tools import CATEGORIES, category_collection, output_pixels, setup
 from upstream_scene import use_device
 
 cli = argparse.ArgumentParser()
@@ -24,6 +24,9 @@ args = cli.parse_args(sys.argv[sys.argv.index("--") + 1:])
 start = time.perf_counter()
 if not args.input:
     bpy.ops.wm.read_factory_settings(use_empty=True)
+    render = bpy.context.scene.render
+    render.resolution_x, render.resolution_y = output_pixels()
+    render.resolution_percentage = 100
     for name in CATEGORIES:
         category_collection(name)
 structure = None
@@ -44,7 +47,10 @@ if not args.input and not scene.camera:
     coords = coords.reshape(-1, 3)
     center = structure.matrix_world @ Vector((coords.max(0) + coords.min(0)) / 2)
     width = (np.linalg.norm(np.ptp(coords, axis=0)) + 4) * 1.6
-    setup(center, width)
+    render = scene.render
+    percentage = render.resolution_percentage
+    setup(center, width, pixels=(render.resolution_x, render.resolution_y))
+    render.resolution_percentage = percentage
 if args.style or not args.input:
     set_style(args.style or "studio")
 if not args.input or args.transparent is not None:
